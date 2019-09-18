@@ -18,7 +18,9 @@
       }
 
       #player {
-        display: none;
+        display: block;
+        position: absolute;
+        top: -390px;
       }
 
       .grid-container {
@@ -94,24 +96,30 @@
     </div>
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
-      const videos = ["woNyVWjndAQ", "bcGU8OUXCDE", "_mVW8tgGY_w",
-                      "ydWVhyhx6jU", "RBiPQKK1upk", "E9GXlsOApFs",
-                      "93rb3WKSpuo"];
+      const videos = [
+        { id:"woNyVWjndAQ", offset: 0 },
+        { id:"bcGU8OUXCDE", offset: 0 },
+        { id:"_mVW8tgGY_w", offset: 0 },
+        { id:"ydWVhyhx6jU", offset: 0 },
+        { id:"RBiPQKK1upk", offset: 0 },
+        { id:"E9GXlsOApFs", offset: 0 },
+        { id:"93rb3WKSpuo", offset: 0 }
+      ];
       const divs = document.getElementById("grid").children;
       let currentId = null;
       let player = null;
 
       for (const idx in videos) {
         const div = divs[idx];
-        const id = videos[idx];
-        div.style.backgroundImage = `url(https://img.youtube.com/vi/${id}/0.jpg)`;
-        div.addEventListener("click", e => onClick(id, div));
+        const vid = videos[idx];
+        div.style.backgroundImage = `url(https://img.youtube.com/vi/${vid.id}/0.jpg)`;
+        div.addEventListener("click", e => onClick(vid, div));
       }
 
-      function onClick(id, el) {
+      function onClick(vid, el) {
         Array.from(divs).forEach(d => d.classList.remove("playing", "paused"));
-        if (!player || currentId != id) {
-          playId(id);
+        if (!player || currentId != vid.id) {
+          playVid(vid);
           el.classList.add("playing");
         } else if (
           player.getPlayerState() == 2 ||
@@ -125,21 +133,22 @@
         }
       }
 
-      function playId(id) {
-        currentId = id;
+      function playVid(vid) {
+        currentId = vid.id;
         if (!player) {
           player = new YT.Player("player", {
             height: "390",
             width: "640",
-            videoId: id,
+            videoId: vid.id,
             events: {
               onReady: onVideoReady,
               onStateChange: onPlayerStateChange
             }
           });
+          player.seekTo(vid.offset, true);
           window.document.body.classList.add("loading");
         } else {
-          player.loadVideoById(id);
+          player.loadVideoById(vid);
           window.document.body.classList.add("loading");
         }
       }
